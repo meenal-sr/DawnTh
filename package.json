@@ -12,7 +12,7 @@
   "scripts": {
     "build": "webpack",
     "deploy": "webpack && shopify theme push",
-    "start": "NODE_ENV=development webpack --watch",
+    "start": "cross-env NODE_ENV=development webpack --watch",
     "eslint": "eslint 'src/js/**'",
     "stylelint": "stylelint '**/*.scss'",
     "migrate": "sass-migrator division ~**/*.scss"
@@ -49,6 +49,7 @@
     "babel-loader": "^8.1.0",
     "classnames": "^2.3.2",
     "copy-webpack-plugin": "^10.2.4",
+    "cross-env": "^10.1.0",
     "css-loader": "^6.7.1",
     "css-minimizer-webpack-plugin": "^6.0.0",
     "dotenv": "^16.0.0",
