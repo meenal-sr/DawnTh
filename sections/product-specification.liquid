@@ -1,117 +1,60 @@
-{% assign product_metafield = product.metafields.custom.product_specifications.value %}
-{% assign spec_1 = product_metafield.child_1.value %}
-{% assign spec_2 = product_metafield.child_2.value %}
+{%- assign product_metafield = product.metafields.custom.grandparent.value -%}
+{%- assign spec_sources = 'first_child,second_child' | split: ',' -%}
 
-<!-- DEBUG: remove after testing -->
-<div style="background:#ffe0e0;padding:12px;margin:12px;font-size:12px;font-family:monospace;">
-  <p>product: {{ product.title }}</p>
-  <p>snowboard_length: {{ product.metafields.custom.snowboard_length | json }}</p>
-  <p>product_specifications: {{ product.metafields.custom.product_specifications | json }}</p>
-  <p>product_specs: {{ product.metafields.custom.product_specs | json }}</p>
-  <p>product_spec_v2: {{ product.metafields.custom.product_spec_v2 | json }}</p>
-</div>
+{% comment %} {{ product_metafield.first_child.value | json  }} <s>oneee</s>
+{{ product_metafield.second_child.value | json   }}  {% endcomment %}
 
-<script data-specs-json type="application/json">
-  {
-    "list1": {{ spec_1 | json }},
-    "list2": {{ spec_2 | json }},
-    "skip": "id,type,handle,admin_graphql_api_id,updated_at"
-  }
-</script>
+{%- for source in spec_sources -%}
 
-<div class="spec-table-wrapper">
-  <table class="spec-table">
-    <thead>
-      <tr>
-        <th>Property</th>
-        <th>Value</th>
-      </tr>
-    </thead>
-    <tbody data-specs-table></tbody>
-  </table>
-</div>
+  {%- assign spec_obj = product_metafield[source].value -%}
+     {% comment %} {{spec_obj}} <br> <br>    {% endcomment %}
+   {%- if spec_obj == blank -%}
+    {%- continue -%}
+  {%- endif -%}
+  {%- assign json_str = spec_obj | json | remove: '{' | remove: '}' -%}
+     {% comment %} json_str---{{ json_str  }} <br> <br>  {% endcomment %}
+   {%- assign pairs = json_str | split: '","' -%}
 
-<script>
-  (function() {
-    var el = document.querySelector('[data-specs-json]');
-    if (!el) return;
-    var table = document.querySelector('[data-specs-table]');
-    if (!table) return;
+  {%- for pair in pairs -%}
+    {%- assign kv = pair | split: '":"' -%}
 
-    var data = JSON.parse(el.textContent);
-    var skip = data.skip.split(',').map(function(s) { return s.trim(); });
-    var rows = [];
+    {%- assign item_key = kv[0] | remove: '"' -%}
+    {%- assign item_value = kv[1] | remove: '"' -%}
+    {%- assign item_words = item_key | replace: '_', ' ' | split: ' ' -%}
 
-    function humanize(key) {
-      return key.replace(/_/g, ' ').replace(/\b\w/g, function(c) { return c.toUpperCase(); });
-    }
 
-    function collectRows(obj) {
-      if (!obj || typeof obj !== 'object') return;
-      Object.keys(obj).forEach(function(key) {
-        if (skip.indexOf(key) !== -1) return;
-        var val = obj[key];
-        if (val === null || val === '' || val === undefined) return;
-        rows.push({ label: humanize(key), value: val });
-      });
-    }
+    {%- assign item_title = '' -%}
+   {%- for word in item_words -%}
 
-    collectRows(data.list1);
-    collectRows(data.list2);
+      {%- assign formatted_word = word | capitalize -%}
 
-    if (rows.length === 0) {
-      table.closest('.spec-table-wrapper').style.display = 'none';
-      return;
-    }
 
-    var html = rows.map(function(row, i) {
-      var bg = i % 2 === 0 ? '#F5F5F5' : '#FFFFFF';
-      return '<tr style="background:' + bg + ';">'
-        + '<td style="padding:8px 12px;font-weight:600;">' + row.label + '</td>'
-        + '<td style="padding:8px 12px;">' + row.value + '</td>'
-        + '</tr>';
-    }).join('');
+      {%- if forloop.first -%}
+        {%- assign item_title = formatted_word -%}
 
-    table.innerHTML = html;
-  })();
-</script>
+      {%- else -%}
+        {%- assign item_title = item_title | append: ' ' | append: formatted_word -%}
+      {%- endif -%}
+    {%- endfor -%}
 
-<style>
-  .spec-table-wrapper {
-    max-width: 700px;
-    margin: 40px auto;
-  }
-  .spec-table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  .spec-table thead th {
-    text-align: left;
-    padding: 12px 16px;
-    background: #2c2c2c;
-    color: #fff;
-    font-size: 14px;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-  }
-  .spec-table tbody tr {
-    border-bottom: 1px solid #e5e5e5;
-  }
-  .spec-table tbody tr:nth-child(even) {
-    background: #f9f9f9;
-  }
-  .spec-table tbody td {
-    padding: 12px 16px;
-    font-size: 14px;
-    color: #333;
-  }
-  .spec-table tbody td:first-child {
-    font-weight: 600;
-    color: #000;
-  }
-</style>
+    <div class="spec-row flex items-center w-full px-3 py-[11px] {% cycle 'bg-[#eff0f2]', 'bg-transparent' %}">
+      <div class="flex grow basis-0 flex-col">
+        <h3 class="font-heading font-bold text-[14px] leading-[18px] tracking-[-0.14px] text-[#323e46] m-0">{{ item_title }}</h3>
+      </div>
+      <div class="flex grow basis-0 flex-col">
+        {%- if item_value contains 'MediaImage' -%}
+          {%- assign spec_image = spec_obj[item_key].value -%}
 
+          {% render 'shopify-responsive-image', image: spec_image, max_width: 100 %}
+        {%- else -%}
+          <p class="font-heading font-bold text-[14px] leading-[18px] tracking-[-0.14px] text-[#666] m-0">{{ item_value }}</p>
+
+        {%- endif -%}
+      </div>
+    </div>
+  {%- endfor -%}
+{%- endfor -%}
+ 
 
 
 
