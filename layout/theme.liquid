@@ -39,6 +39,7 @@
       <script src="{{ 'animations.js' | asset_url }}" defer="defer"></script>
     {%- endif -%}
 
+    {{ 'common-imports.css' | asset_url | stylesheet_tag }}
     {{ content_for_header }}
 
     {%- liquid

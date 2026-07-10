@@ -7,7 +7,9 @@
   <div id="StickyVariantBar" class="sticky-bar sticky-bar--hidden">
     <div class="sticky-bar__inner page-width">
       {%- for variant in product.variants -%}
-        {% render 'sticky-variant-card', variant: variant, product: product %}
+        <div class="sticky-bar__card-wrapper{% if forloop.index > 2 %} sticky-bar__card-wrapper--desktop-only{% endif %}">
+          {% render 'sticky-variant-card', variant: variant, product: product %}
+        </div>
       {%- endfor -%}
     </div>
   </div>
@@ -34,6 +36,7 @@
       display: flex;
       justify-content: center;
       gap: 1.2rem;
+    
     }
 
     .sticky-bar__card {
@@ -42,10 +45,9 @@
       background: #fff;
       border-radius: 10px;
       overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      flex: 1;
-      max-width: 340px;
-      min-width: 0;
+      border: 1.5px solid #000;
+      flex: 1 0 260px;
+    
     }
 
     .sticky-bar__card--sold-out {
@@ -62,15 +64,12 @@
     }
 
     .sticky-bar__card-image {
-      width: 60px;
-      height: 60px;
+      width: 80px;
       flex-shrink: 0;
     }
 
-    .sticky-bar__card-image img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
+    .sticky-bar__card-image .responsive-image__image {
+      object-fit: contain !important;
     }
 
     .sticky-bar__card-details {
@@ -81,7 +80,7 @@
     }
 
     .sticky-bar__card-title {
-      font-size: 1.3rem;
+      font-size: 1.5rem;
       font-weight: 500;
       white-space: nowrap;
       overflow: hidden;
@@ -89,7 +88,7 @@
     }
 
     .sticky-bar__card-price {
-      font-size: 1.5rem;
+      font-size: 1.8rem;
       font-weight: 700;
       color: #000;
     }
@@ -112,7 +111,8 @@
     }
 
     .sticky-bar__buy-btn:hover {
-      background: #000;
+      background: #fff;
+      color: #000;
     }
 
     .sticky-bar__buy-btn--disabled {
@@ -123,6 +123,55 @@
     .sticky-bar__card form {
       display: flex;
       margin: 0;
+    }
+
+    
+
+    @media (max-width: 1023px) {
+      .sticky-bar__card-wrapper--desktop-only {
+        display: none;
+      }
+
+      .sticky-bar {
+        padding: 0.8rem 0 0.6rem;
+      }
+
+      .sticky-bar__inner {
+        gap: 0.8rem;
+        
+      }
+
+      .sticky-bar__buy-btn,
+      .sticky-bar__buy-btn--disabled {
+        display: none;
+      }
+
+      .sticky-bar__card {
+        cursor: pointer;
+        flex: 1 1 0;
+        max-width: 190px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+      }
+
+      .sticky-bar__card-info {
+        display: flex;
+        
+        gap: 2.6rem
+      }
+
+      .sticky-bar__card-image {
+        width: 50px;
+      }
+
+      .sticky-bar__card-title {
+        font-size: 1.1rem;
+        white-space: nowrap;
+      }
+
+      .sticky-bar__card-price {
+        font-size: 1.2rem;
+      }
     }
   </style>
 
@@ -139,6 +188,15 @@
       });
 
       observer.observe(productInfo);
+
+      if (window.matchMedia('(max-width: 1023px)').matches) {
+        bar.querySelectorAll('.sticky-bar__card').forEach((card) => {
+          card.addEventListener('click', () => {
+            const form = card.querySelector('form');
+            if (form) form.submit();
+          });
+        });
+      }
     })();
   </script>
 {%- endif -%}

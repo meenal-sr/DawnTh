@@ -13,11 +13,13 @@
   <div class="sticky-bar__card-info">
     {%- if variant.image -%}
       <div class="sticky-bar__card-image">
-        {{
-          variant.image
-          | image_url: width: 100
-          | image_tag: loading: 'lazy', widths: '50, 80, 100', alt: variant.title
-        }}
+         {% render 'shopify-responsive-image',
+                image: variant.image,
+                aspect_ratio: 1,
+                no_lazyload: true,
+                image_class: 'sticky-bar__img',
+                wrapper_class: 'sticky-bar__img-wrapper'
+              %}      
       </div>
     {%- endif -%}
     <div class="sticky-bar__card-details">
