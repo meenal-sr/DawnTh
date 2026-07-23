@@ -1,60 +1,8 @@
-{%- assign product_metafield = product.metafields.custom.grandparent.value -%}
-{%- assign spec_sources = 'first_child,second_child' | split: ',' -%}
+{% layout 'theme' %}
 
-{% comment %} {{ product_metafield.first_child.value | json  }} <s>oneee</s>
-{{ product_metafield.second_child.value | json   }}  {% endcomment %}
-
-{%- for source in spec_sources -%}
-
-  {%- assign spec_obj = product_metafield[source].value -%}
-     {% comment %} {{spec_obj}} <br> <br>    {% endcomment %}
-   {%- if spec_obj == blank -%}
-    {%- continue -%}
-  {%- endif -%}
-  {%- assign json_str = spec_obj | json | remove: '{' | remove: '}' -%}
-     {% comment %} json_str---{{ json_str  }} <br> <br>  {% endcomment %}
-   {%- assign pairs = json_str | split: '","' -%}
-
-  {%- for pair in pairs -%}
-    {%- assign kv = pair | split: '":"' -%}
-
-    {%- assign item_key = kv[0] | remove: '"' -%}
-    {%- assign item_value = kv[1] | remove: '"' -%}
-    {%- assign item_words = item_key | replace: '_', ' ' | split: ' ' -%}
+<div data-spec-list="spec-list"></div>
 
 
-    {%- assign item_title = '' -%}
-   {%- for word in item_words -%}
-
-      {%- assign formatted_word = word | capitalize -%}
-
-
-      {%- if forloop.first -%}
-        {%- assign item_title = formatted_word -%}
-
-      {%- else -%}
-        {%- assign item_title = item_title | append: ' ' | append: formatted_word -%}
-      {%- endif -%}
-    {%- endfor -%}
-
-    <div class="spec-row flex items-center w-full px-3 py-[11px] {% cycle 'bg-[#eff0f2]', 'bg-transparent' %}">
-      <div class="flex grow basis-0 flex-col">
-        <h3 class="font-heading font-bold text-[14px] leading-[18px] tracking-[-0.14px] text-[#323e46] m-0">{{ item_title }}</h3>
-      </div>
-      <div class="flex grow basis-0 flex-col">
-        {%- if item_value contains 'MediaImage' -%}
-          {%- assign spec_image = spec_obj[item_key].value -%}
-
-          {% render 'shopify-responsive-image', image: spec_image, max_width: 100 %}
-        {%- else -%}
-          <p class="font-heading font-bold text-[14px] leading-[18px] tracking-[-0.14px] text-[#666] m-0">{{ item_value }}</p>
-
-        {%- endif -%}
-      </div>
-    </div>
-  {%- endfor -%}
-{%- endfor -%}
- 
 
 
 

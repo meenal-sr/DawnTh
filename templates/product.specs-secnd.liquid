@@ -1,0 +1,21 @@
+{%- layout none -%}
+{%- assign spec_entries = product.metafields.custom.grandparent.value |  first -%}
+{%- assign children = spec_entries.secnd_child.value -%}
+{%- paginate children by 250 -%}
+{%- if spec_entries != blank -%}
+{
+  "item_key": [
+    {%- for spec in children -%}
+      { "spec_key": {{ spec | json }} }
+      {% unless forloop.last %},{% endunless %}
+    {%- endfor -%}
+  ],
+  "next_url":
+  {% if paginate.next %}
+    {{ paginate.next.url | json }}
+  {% else %}
+    null
+  {% endif %}
+}
+{%- endif -%}
+{%- endpaginate -%} 

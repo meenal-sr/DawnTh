@@ -1,0 +1,7 @@
+{%- layout none -%}
+{%- assign spec_entries = product.metafields.custom.product_spec_v2.value -%}
+{%- paginate spec_entries by 250 -%}
+{%- if spec_entries != blank -%}
+{"item_key":[{%- for spec in spec_entries -%}{"spec_key":{{ spec | json }}}{% unless forloop.last %},{% endunless %}{%- endfor -%}]}
+{%- endif -%}
+{%- endpaginate -%}

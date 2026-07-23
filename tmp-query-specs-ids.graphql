@@ -1,0 +1,9 @@
+query {
+  metaobjects(type: "product_specs", query: "NOT display_name:''") {
+    edges {
+      node {
+        id
+      }
+    }
+  }
+}

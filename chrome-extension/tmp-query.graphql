@@ -1,6 +1,0 @@
-mutation ($id: ID!) {
-  metaobjectUpdate(id: $id, metaobject: { status: ACTIVE }) {
-    metaobject { id handle }
-    userErrors { field message }
-  }
-}
