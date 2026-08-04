@@ -13,8 +13,11 @@
     {% endif %}
   </style>
 {% endif %}
-
+<button id="refresh-header">Header Version 2</button>
 {% include 'search-drawer' %}
+<div id="empty-div">
+
+</div>
 
 <div data-section-id="{{ section.id }}" data-section-type="header-section" data-header-section>
   {% if section.settings.message %}

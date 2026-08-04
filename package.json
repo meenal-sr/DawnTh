@@ -7,7 +7,8 @@
   "sideEffects": [
     "*.css",
     "*.scss",
-    "*.vue"
+    "*.vue",
+    "./js/sections/*.js"
   ],
   "scripts": {
     "build": "webpack",

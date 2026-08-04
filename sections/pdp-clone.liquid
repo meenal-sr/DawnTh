@@ -1,0 +1,65 @@
+<div id="shopify-section-{{ section.id }}"
+  data-section-id="{{ section.id }}"
+  data-product-handle="{{ featured_product.handle }}>
+
+{%- assign featured_product = product -%}
+
+
+{%- if featured_product != blank -%}
+  <div class="featured-product-card">
+    <!-- Product Image -->
+    <a href="{{ featured_product.url }}">
+      <img src="{{ featured_product.featured_image | image_url: width: 400 }}" alt="{{ featured_product.title }}" loading="lazy">
+    </a>
+
+    <!-- Product Details -->
+    <h2>{{ featured_product.title }}</h2>
+    <p>{{ featured_product.price | money }}</p>
+
+    {% for option in product.options_with_values %}
+        
+        <label>{{option.name}}</label>
+        <select data-option-position="{{ option.position }}">
+
+            {%for value in option.values%}
+                <option>{{value}}</option>
+            {%endfor%}
+                
+        </select>
+    {%endfor%} 
+
+
+    <!-- Form to Add to Cart -->
+    {%- form 'product', featured_product -%}
+        
+      <input type="hidden" name="id" value="{{ featured_product.selected_or_first_available_variant.id }}">
+      
+      {% if featured_product.available %}
+        <button type="submit" class="button">Add to Cart</button>
+      {% else %}
+        <button type="button" class="button" disabled>Sold Out</button>
+      {% endif %}
+    {%- endform -%}
+  </div>
+{%- else -%}
+  <p>Product not found. Please check the handle.</p>
+{%- endif -%}
+{{ 'custom-featured-product.js' | asset_url | script_tag }}
+</div>
+{% schema %}
+{
+  "name": "Custom Featured Product",
+  "settings": [
+    {
+      "type": "product",
+      "id": "home_featured_product",
+      "label": "Select Product"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Custom Featured Product"
+    }
+  ]
+}
+{% endschema %}

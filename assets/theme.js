@@ -686,7 +686,15 @@ slate.Variants = (function() {
     this.singleOptionSelector = options.singleOptionSelector;
     this.originalSelectorId = options.originalSelectorId;
     this.enableHistoryState = options.enableHistoryState;
-    this.currentVariant = this._getVariantFromOptions();
+
+    // Use CurrentVariant script tag for initial variant (not capped at 250)
+    var sectionId = this.$container.data('section-id');
+    var currentVariantScript = document.getElementById('CurrentVariant-' + sectionId);
+    if (currentVariantScript) {
+      this.currentVariant = JSON.parse(currentVariantScript.textContent);
+    } else {
+      this.currentVariant = this._getVariantFromOptions();
+    }
 
     $(this.singleOptionSelector, this.$container).on(
       'change',
@@ -750,7 +758,37 @@ slate.Variants = (function() {
      * Event handler for when a variant input changes.
      */
     _onSelectChange: function() {
-      var variant = this._getVariantFromOptions();
+  const optionValueIds = this.$container
+    .find('.single-option-selector option:selected')
+    .map(function () {
+      return this.dataset.optionValueId;
+    })
+    .get();
+
+  const sectionId = this.$container.data('section-id');
+  const url =
+    `${window.location.pathname}?section_id=${sectionId}&option_values=${optionValueIds.join(",")}`;
+
+  console.log(url);
+
+  fetch(url)
+    .then(response => response.text())
+    .then(html => {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, "text/html");
+
+      const currentVariant = doc.querySelector(
+        `#CurrentVariant-${sectionId}`
+      );
+
+      if (!currentVariant) {
+        console.error("CurrentVariant script not found");
+        return;
+      }
+
+      const variant = JSON.parse(currentVariant.textContent);
+
+      console.log(variant);
 
       this.$container.trigger({
         type: 'variantChange',
@@ -770,7 +808,9 @@ slate.Variants = (function() {
       if (this.enableHistoryState) {
         this._updateHistoryState(variant);
       }
-    },
+    })
+    .catch(console.error);
+},
 
     /**
      * Trigger event when variant image changes
@@ -779,13 +819,12 @@ slate.Variants = (function() {
      * @return {event}  variantImageChange
      */
     _updateImages: function(variant) {
-      var variantImage = variant.featured_image || {};
-      var currentVariantImage = this.currentVariant.featured_image || {};
+      if (!variant.featured_image) {
+        return;
+      }
 
-      if (
-        !variant.featured_image ||
-        variantImage.src === currentVariantImage.src
-      ) {
+      var currentVariantImage = (this.currentVariant && this.currentVariant.featured_image) || {};
+      if (variant.featured_image.src === currentVariantImage.src) {
         return;
       }
 
@@ -803,6 +842,7 @@ slate.Variants = (function() {
      */
     _updatePrice: function(variant) {
       if (
+        this.currentVariant &&
         variant.price === this.currentVariant.price &&
         variant.compare_at_price === this.currentVariant.compare_at_price
       ) {
@@ -822,7 +862,7 @@ slate.Variants = (function() {
      * @return {event} variantSKUChange
      */
     _updateSKU: function(variant) {
-      if (variant.sku === this.currentVariant.sku) {
+      if (this.currentVariant && variant.sku === this.currentVariant.sku) {
         return;
       }
 
@@ -859,7 +899,12 @@ slate.Variants = (function() {
      * @param  {variant} variant - Currently selected variant
      */
     _updateMasterSelect: function(variant) {
+      console.log(
+  "Master Select Element:",
+  $(this.originalSelectorId, this.$container)
+);
       $(this.originalSelectorId, this.$container).val(variant.id);
+      
     }
   });
 

@@ -4,7 +4,7 @@
   {%- assign section_onboarding = true -%}
 {% endif %}
 
-<div class="page-width" id="ProductSection-{{ section.id }}" data-section-id="{{ section.id }}" data-section-type="product" data-ajax-enabled="{{ settings.enable_ajax }}">
+<div class="page-width" id="ProductSection-{{ section.id }}" data-section-id="{{ section.id }}" data-section-type="product" data-ajax-enabled="{{ settings.enable_ajax }}" data-product-url="{{ product.url }}">
   {% comment %}
     Get first variant, or deep linked one
   {% endcomment %}
@@ -180,29 +180,34 @@
                 {% unless product.has_only_default_variant %}
                   <div class="product-form__controls-group">
                     {% for option in product.options_with_values %}
-                      <div class="selector-wrapper js product-form__item">
-                        <label {% if option.name == 'default' %}class="label--hidden" {% endif %}for="SingleOptionSelector-{{ section.id }}-{{ forloop.index0 }}">
+                      <fieldset class="selector-wrapper js product-form__item">
+                        <legend {% if option.name == 'default' %}class="label--hidden" {% endif %}>
                           {{ option.name }}
-                        </label>
-                        <select class="single-option-selector single-option-selector-{{ section.id }} product-form__input" id="SingleOptionSelector-{{ section.id }}-{{ forloop.index0 }}" data-index="option{{ forloop.index }}">
-                          {% for value in option.values %}
-                            <option value="{{ value | escape }}"{% if option.selected_value == value %} selected="selected"{% endif %}>{{ value }}</option>
-                          {% endfor %}
-                        </select>
-                      </div>
+                        </legend>
+                        {% for option_value in option.values %}
+                          {%- capture input_id -%}Option-{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}{%- endcapture -%}
+                          <input
+                            type="radio"
+                            class="single-option-selector single-option-selector-{{ section.id }} product-form__input"
+                            id="{{ input_id }}"
+                            name="option-{{ option.position }}"
+                            value="{{ option_value | escape }}"
+                            {% if option_value.selected %}checked{% endif %}
+                            {% unless option_value.available %}disabled{% endunless %}
+                            data-option-value-id="{{ option_value.id }}"
+                            data-product-url="{{ option_value.product_url }}"
+                            data-option-position="{{ option.position }}"
+                          />
+                          <label for="{{ input_id }}" {% unless option_value.available %}class="disabled"{% endunless %}>
+                            {{ option_value }}
+                          </label>
+                        {% endfor %}
+                      </fieldset>
                     {% endfor %}
                   </div>
                 {% endunless %}
 
-                <select name="id" id="ProductSelect-{{ section.id }}" class="product-form__variants no-js">
-                  {% for variant in product.variants %}
-                    <option value="{{ variant.id }}"
-                      {%- if variant == current_variant %} selected="selected" {%- endif -%}
-                    >
-                      {{ variant.title }}  {%- if variant.available == false %} - {{ 'products.product.sold_out' | t }}{% endif %}
-                    </option>
-                  {% endfor %}
-                </select>
+                <input type="hidden" name="id" id="ProductSelect-{{ section.id }}" value="{{ product.selected_or_first_available_variant.id }}" />
               {% endunless %}
               {% if section.settings.show_quantity_selector %}
                 <div class="product-form__controls-group">
@@ -289,7 +294,14 @@
 
 {% unless product == empty %}
   <script type="application/json" id="ProductJson-{{ section.id }}">
-    {{ product | json }}
+    {
+      "id": {{ product.id }},
+      "url": {{ product.url | json }},
+      "selected_variant": {{ product.selected_or_first_available_variant | json }},
+      "available": {{ product.available }},
+      "price": {{ product.price }},
+      "compare_at_price": {{ product.compare_at_price | json }}
+    }
   </script>
   <script type="application/json" id="ModelJson-{{ section.id }}">
     {{ product.media | where: 'media_type', 'model' | json }}
