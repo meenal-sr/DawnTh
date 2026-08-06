@@ -1,6 +1,4 @@
-<div id="shopify-section-{{ section.id }}"
-  data-section-id="{{ section.id }}"
-  data-product-handle="{{ featured_product.handle }}>
+<div id="data-custom-pdp" data-product-handle="{{ product.handle }}" data-section-id="{{ section.id }}">
 
 {%- assign featured_product = product -%}
 
@@ -14,25 +12,34 @@
 
     <!-- Product Details -->
     <h2>{{ featured_product.title }}</h2>
-    <p>{{ featured_product.price | money }}</p>
+     <p class="price">
+  {{ featured_product.selected_or_first_available_variant.price | money }}
+</p>
 
-    {% for option in product.options_with_values %}
-        
-        <label>{{option.name}}</label>
-        <select data-option-position="{{ option.position }}">
+    {% for option in featured_product.options_with_values %}
+  <label>{{ option.name }}</label>
 
-            {%for value in option.values%}
-                <option>{{value}}</option>
-            {%endfor%}
-                
-        </select>
-    {%endfor%} 
+  <select data-option-position="{{ option.position }}">
+    {% for value in option.values %}
+      <option
+      
+        value="{{ value.name | escape }}"
+        data-option-value-id="{{ value.id }}"
+        {% if option.selected_value.id == value.id %}
+          selected="selected"
+        {% endif %}>
+        {{ value.name }}
+      </option>
+    {% endfor %}
+  </select>
+{% endfor %}
 
 
     <!-- Form to Add to Cart -->
     {%- form 'product', featured_product -%}
         
       <input type="hidden" name="id" value="{{ featured_product.selected_or_first_available_variant.id }}">
+     
       
       {% if featured_product.available %}
         <button type="submit" class="button">Add to Cart</button>
