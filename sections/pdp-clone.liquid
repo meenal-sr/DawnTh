@@ -3,11 +3,12 @@
 {%- assign featured_product = product -%}
 
 
+
 {%- if featured_product != blank -%}
   <div class="featured-product-card">
     <!-- Product Image -->
     <a href="{{ featured_product.url }}">
-      <img src="{{ featured_product.featured_image | image_url: width: 400 }}" alt="{{ featured_product.title }}" loading="lazy">
+      <img class="product-image" src="{{ featured_product.selected_or_first_available_variant.featured_image | image_url: width: 400 }}" alt="{{ featured_product.title }}" loading="lazy">
     </a>
 
     <!-- Product Details -->
@@ -36,7 +37,7 @@
 
 
     <!-- Form to Add to Cart -->
-    {%- form 'product', featured_product -%}
+    {%- form 'product', featured_product ,id: 'custom-product-form'-%}
         
       <input type="hidden" name="id" value="{{ featured_product.selected_or_first_available_variant.id }}">
      
