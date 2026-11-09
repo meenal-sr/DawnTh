@@ -23,21 +23,26 @@
 {%endif %}
 {%- assign noscript_image_url = image | img_url: '2048x2048' -%}
  {% assign image_aspect_ratio = aspect_ratio | default: image.aspect_ratio %}
-{% render 'responsive-image-lazyload',
-    max_width: max_width,
-    max_height: max_height,
-    image_id: image.id,
-    lazy_image_url: lazy_image_url,
-    default_image_url: default_image_url,
-    noscript_image_url: noscript_image_url,
-    image_aspect_ratio: image_aspect_ratio,
-    image_class: image_class,
-    image_attributes: image_apttributes,
-    wrapper_class: wrapper_class,
-    crop: crop | default: false,
-    fill: fill | default: false,
-    background: background | default: false,
-    contain: contain | default: false,
-    lazyload: lazyload,    
-    wrapper_attributes: wrapper_attributes,
-    image: image %}
+{% render 'responsive-image-lazyload', max_width: max_width, max_height: max_height, image_id: image.id, lazy_image_url: lazy_image_url, default_image_url: default_image_url, noscript_image_url: noscript_image_url, image_aspect_ratio: image_aspect_ratio, image_class: image_class, image_attributes: image_apttributes, wrapper_class: wrapper_class, crop: crop, default: false, fill: fill, background: background, contain: contain, lazyload: lazyload, wrapper_attributes: wrapper_attributes, image: image %}{%- comment -%}
+
+This file has been rewritten to preserve the original behavior.
+
+---
+Changes:
+- from: "{% render 'responsive-image-lazyload',\n    max_width: max_width,\n    max_height:
+    max_height,\n    image_id: image.id,\n    lazy_image_url: lazy_image_url,\n    default_image_url:
+    default_image_url,\n    noscript_image_url: noscript_image_url,\n    image_aspect_ratio:
+    image_aspect_ratio,\n    image_class: image_class,\n    image_attributes: image_apttributes,\n
+    \   wrapper_class: wrapper_class,\n    crop: crop | default: false,\n    fill:
+    fill | default: false,\n    background: background | default: false,\n    contain:
+    contain | default: false,\n    lazyload: lazyload,    \n    wrapper_attributes:
+    wrapper_attributes,\n    image: image %}"
+  to: "{% render 'responsive-image-lazyload', max_width: max_width, max_height: max_height,
+    image_id: image.id, lazy_image_url: lazy_image_url, default_image_url: default_image_url,
+    noscript_image_url: noscript_image_url, image_aspect_ratio: image_aspect_ratio,
+    image_class: image_class, image_attributes: image_apttributes, wrapper_class:
+    wrapper_class, crop: crop, default: false, fill: fill, background: background,
+    contain: contain, lazyload: lazyload, wrapper_attributes: wrapper_attributes,
+    image: image %}"
+  position: 1562..2067
+{%- endcomment -%}
